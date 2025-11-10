@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Catalog.API.Products.GetProducts
 {
-    public record GetProductsRequest();
+    //public record GetProductsRequest();
     public record GetProductsResponse(IEnumerable<Models.Products> Products);
     public class GetProductsEndpoint : ICarterModule
     {
@@ -12,9 +12,10 @@ namespace Catalog.API.Products.GetProducts
         {
             app.MapGet("/products", async (ISender sender) =>
             {
-                var request = new GetProductsRequest();
-                var query = request.Adapt<GetProductsQuery>();
-                var result = await sender.Send(query);
+                //var request = new GetProductsRequest();
+                //var query = request.Adapt<GetProductsQuery>();
+                //var result = await sender.Send(query);
+                var result = await sender.Send(new GetProductsQuery());
                 var response = result.Adapt<GetProductsResponse>();
                 return Results.Ok(response);
             })
