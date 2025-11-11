@@ -1,22 +1,22 @@
-﻿
+﻿using Catalog.API.CQRS;
 using Marten;
-using MediatR;
 
-namespace Catalog.API.Products.GetProductByCategory;
-
-public record GetProductByCategoryQuery(string Category) : IRequest<GetProductByCategoryResult>;
-public record GetProductByCategoryResult(IEnumerable<Models.Products> Products);
-
-internal class GetProductByCategoryQueryHandler
-    (IDocumentSession session)
-    : IRequestHandler<GetProductByCategoryQuery, GetProductByCategoryResult>
+namespace Catalog.API.Products.GetProductByCategory
 {
-    public async Task<GetProductByCategoryResult> Handle(GetProductByCategoryQuery query, CancellationToken cancellationToken)
-    {
-        var products = await session.Query<Models.Products>()
-            .Where(p => p.Category.Contains(query.Category))
-            .ToListAsync(cancellationToken);
+    public record GetProductByCategoryQuery(string Category) : IQuery<GetProductByCategoryResult>;
+    public record GetProductByCategoryResult(IEnumerable<Models.Products> Products);
 
-        return new GetProductByCategoryResult(products);
+    internal class GetProductByCategoryQueryHandler
+        (IDocumentSession session)
+        : IQueryHandler<GetProductByCategoryQuery, GetProductByCategoryResult>
+    {
+        public async Task<GetProductByCategoryResult> Handle(GetProductByCategoryQuery query, CancellationToken cancellationToken)
+        {
+            var products = await session.Query<Models.Products>()
+                .Where(p => p.Category.Contains(query.Category))
+                .ToListAsync(cancellationToken);
+
+            return new GetProductByCategoryResult(products);
+        }
     }
 }

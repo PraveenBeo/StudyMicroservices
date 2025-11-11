@@ -1,12 +1,15 @@
 ﻿
+using Catalog.API.CQRS;
+using Catalog.API.Exceptions;
 using FluentValidation;
 using Marten;
-using MediatR;
+using System.Windows.Input;
+
 
 namespace Catalog.API.Products.UpdateProduct;
 
 public record UpdateProductCommand(Guid Id, string Name, List<string> Category, string Description, string ImageFile, decimal Price)
-    : IRequest<UpdateProductResult>;
+    : ICommand<UpdateProductResult>;
 public record UpdateProductResult(bool IsSuccess);
 
 public class UpdateProductCommandValidator : AbstractValidator<UpdateProductCommand>
@@ -26,7 +29,7 @@ public class UpdateProductCommandValidator : AbstractValidator<UpdateProductComm
 
 internal class UpdateProductCommandHandler
     (IDocumentSession session)
-    : IRequestHandler<UpdateProductCommand, UpdateProductResult>
+    : ICommandHandler <UpdateProductCommand, UpdateProductResult>
 {
     public async Task<UpdateProductResult> Handle(UpdateProductCommand command, CancellationToken cancellationToken)
     {
@@ -34,7 +37,7 @@ internal class UpdateProductCommandHandler
 
         if (product is null)
         {
-            //throw new ProductNotFoundException(command.Id);
+            throw new NotFoundException("product",product.Id);
         }
 
         product.Name = command.Name;
