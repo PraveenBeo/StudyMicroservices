@@ -1,30 +1,28 @@
 ﻿using Carter;
 using Mapster;
 using MediatR;
+using Marten;
 
 namespace Catalog.API.Products.GetProducts
 {
-    //public record GetProductsRequest();
+    public record GetProductsRequest(int? PageNumber = 1, int? PageSize = 10);
     public record GetProductsResponse(IEnumerable<Models.Products> Products);
     public class GetProductsEndpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet("/products", async (ISender sender) =>
+            app.MapGet("/products", async ([AsParameters] GetProductsRequest request, ISender sender) =>
             {
-                //var request = new GetProductsRequest();
-                //var query = request.Adapt<GetProductsQuery>();
-                //var result = await sender.Send(query);
-                var result = await sender.Send(new GetProductsQuery());
+                var query = request.Adapt<GetProductsQuery>();
+                var result = await sender.Send(query);
                 var response = result.Adapt<GetProductsResponse>();
                 return Results.Ok(response);
             })
-                .WithName("GetProducts")
-                .Produces<GetProductsResponse>(StatusCodes.Status200OK)
-                .ProducesProblem(StatusCodes.Status500InternalServerError)
-                .WithSummary("Gets all products")
-                .WithDescription("Retrieves a list of all products in the catalog.")
-                .WithTags("Products");
+            .WithName("GetProducts")
+            .Produces<GetProductsResponse>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .WithSummary("Get Products")
+            .WithDescription("Get Products");
         }
     }
 }
